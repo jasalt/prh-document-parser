@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ TODO: add module docstring """
 import logging.handlers
 

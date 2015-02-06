@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ TODO: add module docstring """
 import logging
 import traceback
@@ -8,6 +9,8 @@ from loggingutil import ProcessLogHandler
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import TextConverter
+
+from parsertypes import registrylog
 
 
 def process_file(filename):
@@ -33,8 +36,14 @@ def process_file(filename):
     text = output.getvalue()
     output.close()
 
-    # TODO: parse data from text instead of returning it as is
-    return text
+    data = None
+    available_parsers = [registrylog.parser]
+    for can_parse, parse in available_parsers:
+        if can_parse(text):
+            data = parse(text)
+            break
+
+    return (filename, data)
 
 
 class Parser(Process):

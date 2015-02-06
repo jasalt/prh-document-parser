@@ -1,6 +1,7 @@
 """ TODO: add module docstring """
 import os
 import fnmatch
+# -*- coding: utf-8 -*-
 import logging
 import threading
 from multiprocessing import Queue, cpu_count
@@ -29,6 +30,8 @@ def result_collector(result_queue):
             break
 
         # TODO: store result in database
+        with open(result[0].split('.')[0]+'.txt', 'w') as handle:
+            handle.write(repr(result[1]))
 
     # TODO: close connection to database
     logger.debug("result_collector stopped.")
@@ -63,17 +66,18 @@ def parse(search_path, num_parsers=cpu_count(), process_loglevel=logging.DEBUG):
         job_queue.put(filepath)
         num_files += 1
 
-    # Send stop commands to parsers and result collector
+    # Send stop commands to parsers
     for _ in xrange(num_parsers):
         job_queue.put(None)
-    result_queue.put(None)
-    log_queue.put(None)
 
     # Join all parser processes
     for parser in parsers:
         parser.join()
-
     logger.debug("All parsers joined.")
+
+    # Send rest of the stop commands
+    result_queue.put(None)
+    log_queue.put(None)
 
     # Join result collector thread
     collector.join()

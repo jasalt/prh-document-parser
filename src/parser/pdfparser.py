@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" TODO: add module docstring """
+""" PDF parsing and information extraction. """
 import logging
 import traceback
 from StringIO import StringIO
@@ -10,7 +10,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import TextConverter
 
-from parsertypes import registrylog
+from parsertypes import registerlog
 
 
 def process_file(filename):
@@ -37,7 +37,7 @@ def process_file(filename):
     output.close()
 
     data = None
-    available_parsers = [registrylog.parser]
+    available_parsers = [registerlog.get_parser()]
     for can_parse, parse in available_parsers:
         if can_parse(text):
             data = parse(text)

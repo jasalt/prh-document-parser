@@ -37,7 +37,7 @@ def process_file(filename):
     output.close()
 
     data = None
-    available_parsers = [registerlog.parser]
+    available_parsers = [registerlog.get_parser()]
     for can_parse, parse in available_parsers:
         if can_parse(text):
             data = parse(text)

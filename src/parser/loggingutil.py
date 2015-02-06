@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" TODO: add module docstring """
+""" Utility functions for multiprocess logging. """
 import logging.handlers
 
 

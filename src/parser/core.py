@@ -1,5 +1,16 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" TODO: add module docstring """
+""" Core module for PDF parsing.
+
+PDF files can be parsed using 'parse' function, which finds and
+parses PDF files using multiple processes and saves the parsed
+data into a database.
+
+This module can be executed as a script. You can see the all
+available command-line parameters by running
+
+$ python core.py -h
+"""
 import os
 import fnmatch
 import logging

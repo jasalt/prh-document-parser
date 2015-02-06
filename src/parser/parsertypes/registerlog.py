@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Registry log parser. """
+""" Finnish and swedish register log parser. """
 import re
 
 FORMFEED = '\x0c'

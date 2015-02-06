@@ -1,0 +1,21 @@
+* Setup
+After installing postgres, create db and user role with privileges and schema ownership.
+
+# Connect db as superuser
+$> createdb firm-db
+$> [psql|pgcli] firm-db
+
+firm-db> CREATE USER dbuser WITH PASSWORD 'dbpass'
+firm-db> GRANT ALL PRIVILEGES ON DATABASE "firm-db" to dbuser;
+firm-db> ALTER SCHEMA public OWNER TO dbuser;
+* SQL notes
+** List schemas
+(/dn in psql)
+
+select schema_name from information_schema.schemata;
+** Delete and recreate public schema
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+COMMENT ON SCHEMA public IS 'standard public schema';

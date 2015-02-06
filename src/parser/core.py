@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 """ TODO: add module docstring """
 import os
 import fnmatch
-# -*- coding: utf-8 -*-
 import logging
 import threading
 from multiprocessing import Queue, cpu_count

@@ -18,10 +18,11 @@ def do_sql(psycho_cursor, sql):
     return psycho_cursor.execute(sql)
 
 
-def make_table_name(attr_str):
+def make_table_name(attr_u_str):
     '''Transforms unicode string to sql table name string.'''
-    normalized = normalize('NFKD', attr_str).encode('ascii', 'ignore')
-    cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"], normalized)
+    normalized = normalize('NFKD', attr_u_str).encode('ascii', 'ignore')
+    cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"],
+                     normalized)
     cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]
     return cleaned0
 

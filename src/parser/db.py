@@ -44,17 +44,24 @@ def init_schema(cur, schema_name):
 def insert_record(cur, schema, result):
     '''Insert parser result to database, table for each
         attribute'''
-    print "Inserting " + result[0]
+    filename = result[0]
+    print "Inserting " + filename
     # Switch "scope" to selected schema
     do_sql(cur, "set search_path to %s" % schema)
 
     for record_entry in result[1]:
         table_name = make_table_name(record_entry['title'])
         do_sql(cur, CREATE_ATTR_TABLE % table_name)
-        #do_sql(cur, '''INSERT INTO %s''')
 
+        content = normalize('NFKD',
+                            record_entry['content']).encode('ascii', 'ignore')
 
-    return 0
+        # TODO Proper firm_id, validations, ...
+        res = do_sql(cur, '''INSERT INTO %s (firm_id, date, content)
+                             VALUES ('%s', '%s', '%s')''' %
+                     (table_name, 1, record_entry['date'], content))
+
+    return res
 
 
 CONN_STR = "dbname='firm-db' user='dbuser' host='localhost' password='dbpass'"

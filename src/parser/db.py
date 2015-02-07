@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
 # Database operations
+
 import psycopg2
+from unicodedata import normalize
+
+from sql import CREATE_ATTR_TABLE
+
 
 def save_to_file(result):
     ''' Save result to file, for testing..'''
@@ -13,8 +19,9 @@ def do_sql(psycho_cursor, sql):
 
 
 def make_table_name(attr_str):
-    ''' Transform string into a sql table name'''
-    return attr_str.replace(" ", "_").upper()
+    '''Transforms unicode string to sql table name string.'''
+    u_restr = attr_str.replace(" ", "_").upper()
+    return normalize('NFKD', u_restr).encode('ascii', 'ignore')
 
 
 def init_schema(cur, schema_name):
@@ -34,8 +41,14 @@ def init_schema(cur, schema_name):
 def insert_record(cur, schema, result):
     '''Insert parser result to database, table for each
         attribute'''
+    print "Inserting " + result[0]
+    # Switch "scope" to selected schema
     do_sql(cur, "set search_path to %s" % schema)
-    print "do smthn for result " + str(len(result))
+
+    for record_entry in result[1]:
+        do_sql(cur, CREATE_ATTR_TABLE % make_table_name(record_entry['title']))
+        import ipdb; ipdb.set_trace()
+        
     return 0
 
 

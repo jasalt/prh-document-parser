@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Database operations
+""" Database operations. """
 
 import psycopg2
 from unicodedata import normalize

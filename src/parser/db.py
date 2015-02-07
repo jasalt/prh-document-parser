@@ -21,12 +21,7 @@ def do_sql(psycho_cursor, sql):
 def make_table_name(attr_str):
     '''Transforms unicode string to sql table name string.'''
     normalized = normalize('NFKD', attr_str).encode('ascii', 'ignore')
-    # TODO: map(lambda word, char: str.replace(word, char, "_"), [" ","-"]) ??
-    rep_funks = [lambda x: str.replace(x, " ", "_"),
-                 lambda x: str.replace(x, "-", "_"),
-                 lambda x: str.replace(x, "__", "_")]
-
-    cleaned = reduce(lambda x, y: y(x), rep_funks, normalized)
+    cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"], normalized)
     cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]
     return cleaned0
 

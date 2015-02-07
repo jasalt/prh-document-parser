@@ -19,6 +19,7 @@ from multiprocessing import Queue, cpu_count
 
 from loggingutil import handler_listener
 from pdfparser import Parser
+from db import save_to_file
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ def path_iterator(search_path, file_pattern):
 
 def result_collector(result_queue):
     """ Stores result from result_queue to a database. """
-
+    #import ipdb; ipdb.set_trace()
     # TODO: connect to database
 
     while True:
@@ -41,8 +42,7 @@ def result_collector(result_queue):
             break
 
         # TODO: store result in database
-        with open(result[0].split('.')[0]+'.txt', 'w') as handle:
-            handle.write(repr(result[1]))
+        save_to_file(result)
 
     # TODO: close connection to database
     logger.debug("result_collector stopped.")

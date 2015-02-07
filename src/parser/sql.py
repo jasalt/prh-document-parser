@@ -1,8 +1,8 @@
 # Some SQL
 
 # TODO create proper data types for validation
-
-CREATE_SQL = '''
+# TODO Table for company data
+CREATE_COMPANY_TABLE = '''
 CREATE TABLE companies (
 id           serial,
 name         text,
@@ -19,5 +19,16 @@ telephone    text,
 fax          text,
 email        text,
 homepage     text
+)
+'''
+
+# Create table for attribute
+# TODO date formatting
+CREATE_ATTR_TABLE = '''
+CREATE TABLE IF NOT EXISTS %s (
+id           serial,
+firm_id      integer NOT NULL,
+date         text NOT NULL,
+content      text NOT NULL
 )
 '''

@@ -20,8 +20,15 @@ def do_sql(psycho_cursor, sql):
 
 def make_table_name(attr_str):
     '''Transforms unicode string to sql table name string.'''
-    u_restr = attr_str.replace(" ", "_").upper()
-    return normalize('NFKD', u_restr).encode('ascii', 'ignore')
+    normalized = normalize('NFKD', attr_str).encode('ascii', 'ignore')
+    # TODO: map(lambda word, char: str.replace(word, char, "_"), [" ","-"]) ??
+    rep_funks = [lambda x: str.replace(x, " ", "_"),
+                 lambda x: str.replace(x, "-", "_"),
+                 lambda x: str.replace(x, "__", "_")]
+
+    cleaned = reduce(lambda x, y: y(x), rep_funks, normalized)
+    cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]
+    return cleaned0
 
 
 def init_schema(cur, schema_name):
@@ -46,9 +53,11 @@ def insert_record(cur, schema, result):
     do_sql(cur, "set search_path to %s" % schema)
 
     for record_entry in result[1]:
-        do_sql(cur, CREATE_ATTR_TABLE % make_table_name(record_entry['title']))
-        import ipdb; ipdb.set_trace()
-        
+        table_name = make_table_name(record_entry['title'])
+        do_sql(cur, CREATE_ATTR_TABLE % table_name)
+        #do_sql(cur, '''INSERT INTO %s''')
+
+
     return 0
 
 

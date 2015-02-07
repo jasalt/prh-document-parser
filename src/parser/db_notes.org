@@ -13,6 +13,10 @@ firm-db> ALTER SCHEMA public OWNER TO dbuser;
 (/dn in psql)
 
 select schema_name from information_schema.schemata;
+** Search scope
+By default "public" schema is searched.
+To use schema "scope" do
+SET search_path TO first_pass;
 ** Delete and recreate public schema
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;

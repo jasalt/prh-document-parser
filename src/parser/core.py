@@ -19,7 +19,10 @@ from multiprocessing import Queue, cpu_count
 
 from loggingutil import handler_listener
 from pdfparser import Parser
-from db import save_to_file
+
+# Import vars for db connection
+from db import cur as psycho_cursor, schemas
+from db import save_to_file, insert_record
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +45,8 @@ def result_collector(result_queue):
             break
 
         # TODO: store result in database
-        save_to_file(result)
+        insert_record(psycho_cursor, schemas[0], result)
+        #save_to_file(result)
 
     # TODO: close connection to database
     logger.debug("result_collector stopped.")

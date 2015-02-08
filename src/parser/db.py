@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 """ Database operations. """
 
+import logging
 import psycopg2
 from unicodedata import normalize
 
 from sql import CREATE_ATTR_TABLE
+
+CONN_STR = "dbname='firm-db' user='dbuser' host='localhost' password='dbpass'"
+SCHEMAS = ["first_pass", "second_pass"]
+
+logger = logging.getLogger(__name__)
 
 
 def save_to_file(result):
@@ -64,17 +70,19 @@ def insert_record(cur, schema, result):
     return res
 
 
-CONN_STR = "dbname='firm-db' user='dbuser' host='localhost' password='dbpass'"
-schemas = ["first_pass", "second_pass"]
+def connect():
+    """ Connects to database and returns database cursor.
+        Returns None if connection to database fails. """
+    cur = None
+    try:
+        conn = psycopg2.connect(CONN_STR)
 
-try:
-    conn = psycopg2.connect(CONN_STR)
-except:
-    print("Unable to connect db.")
+        # Allow dropping schema in transaction
+        conn.set_isolation_level(0)
+        cur = conn.cursor()
 
-# Allow dropping schema in transaction
-conn.set_isolation_level(0)
-cur = conn.cursor()
-
-for schema_name in schemas:
-    init_schema(cur, schema_name)
+        for schema_name in SCHEMAS:
+            init_schema(cur, schema_name)
+    except psycopg2.OperationalError:
+        logger.error("Unable to connect db.")
+    return cur

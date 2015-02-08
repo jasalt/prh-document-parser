@@ -19,10 +19,7 @@ from multiprocessing import Queue, cpu_count
 
 from loggingutil import handler_listener
 from pdfparser import Parser
-
-# Import vars for db connection
-from db import cur as psycho_cursor, schemas
-from db import save_to_file, insert_record
+import db
 
 logger = logging.getLogger(__name__)
 
@@ -34,21 +31,19 @@ def path_iterator(search_path, file_pattern):
             yield os.path.join(dirpath, filename)
 
 
-def result_collector(result_queue):
+def result_collector(psycho_cursor, result_queue):
     """ Stores result from result_queue to a database. """
-    #import ipdb; ipdb.set_trace()
-    # TODO: connect to database
-
     while True:
         result = result_queue.get()
         if result is None:
             break
 
-        # TODO: store result in database
-        insert_record(psycho_cursor, schemas[0], result)
-        #save_to_file(result)
+        # Store result in database
+        if psycho_cursor is not None:
+            db.insert_record(psycho_cursor, db.SCHEMAS[0], result)
+        else:
+            db.save_to_file(result)
 
-    # TODO: close connection to database
     logger.debug("result_collector stopped.")
 
 
@@ -62,6 +57,9 @@ def parse(search_path, num_parsers=cpu_count(), process_loglevel=logging.DEBUG):
     result_queue = Queue()         # Queue for parsing results
     log_queue = Queue()            # Queue for logging
 
+    # Connect to database
+    psycho_cursor = db.connect()
+
     # Create parser processes
     parsers = []
     for _ in xrange(num_parsers):
@@ -70,7 +68,8 @@ def parse(search_path, num_parsers=cpu_count(), process_loglevel=logging.DEBUG):
         parsers.append(parser)
 
     # Start result collector and process log listener
-    collector = threading.Thread(target=result_collector, args=(result_queue,))
+    collector = threading.Thread(target=result_collector,
+                                 args=(psycho_cursor, result_queue))
     collector.start()
     loglistener = threading.Thread(target=handler_listener, args=(log_queue,))
     loglistener.start()

@@ -113,6 +113,9 @@ def __main__():
     parser.add_option("-l", "--level", dest="level", default="warning",
                       help="logging level (debug, info, warning, error, " + \
                             "critical) [default: %default]")
+    parser.add_option("-p", "--parsers", dest="num_parsers",
+                      default=cpu_count(),
+                      help="number of parsers [default: %default]")
     options, args = parser.parse_args()
 
     if len(args) == 0:
@@ -124,13 +127,19 @@ def __main__():
     loglevel = loglevels.get(options.level, logging.WARNING)
     logging.basicConfig(filename=options.logfile, level=loglevel)
 
+    try: # Number of parsers must be a number
+        num_parsers = int(options.num_parsers)
+    except ValueError:
+        logger.critical("Invalid number of parsers: '%s'", options.num_parsers)
+        return
+
     # Warn about invalid logging level
     if not options.level in loglevels:
         logger.warning("Invalid loglevel option: %s", options.level)
 
     # Start parsing
     for arg in args:
-        parse(arg, process_loglevel=loglevel)
+        parse(arg, process_loglevel=loglevel, num_parsers=num_parsers)
 
 if __name__ == '__main__':
     __main__()

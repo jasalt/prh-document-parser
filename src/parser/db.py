@@ -51,9 +51,6 @@ def init_schema(cur, schema_name):
     do_sql(cur, "create schema %s" % schema_name)
     print("Created new schema %s." % schema_name)
 
-    do_sql(cur, CREATE_COMPANY_TABLE)
-    print("Initialized companies table")
-
 
 # TODO Validations
 def insert_record(cur, schema, parser_result):
@@ -105,6 +102,9 @@ def connect():
         
         do_sql(cur, "set search_path to %s" % SCHEMAS[0])
         print("Set search path to schema %s." % SCHEMAS[0])
+        
+        do_sql(cur, CREATE_COMPANY_TABLE)
+        print("Initialized companies table")
 
     except psycopg2.OperationalError:
         logger.error("Unable to connect db.")

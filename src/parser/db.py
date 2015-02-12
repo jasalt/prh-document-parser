@@ -4,6 +4,7 @@
 import logging
 import psycopg2
 from unicodedata import normalize
+from random import randint
 
 from sql import CREATE_ATTR_TABLE, CREATE_COMPANY_TABLE
 
@@ -24,13 +25,19 @@ def do_sql(psycho_cursor, sql):
     return psycho_cursor.execute(sql)
 
 
+# TODO clean up and fix this
 def make_table_name(attr_u_str):
     '''Transforms unicode string to sql table name string.'''
-    normalized = normalize('NFKD', attr_u_str).encode('ascii', 'ignore')
-    cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"],
-                     normalized)
-    cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]  # TODO clean
-    return cleaned0
+    try:
+        normalized = normalize('NFKD', attr_u_str)
+        cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"],
+                         normalized)  # Replace with underscore
+        cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]
+        return ''.join([i for i in cleaned0 if not i.isdigit()])  # rm
+    # digits
+    except:
+        print "Unable to make_table_name from " + attr_u_str
+        return "ILL_NAME" + str(randint(10000, 99999))
 
 
 def init_schema(cur, schema_name):
@@ -43,10 +50,6 @@ def init_schema(cur, schema_name):
 
     do_sql(cur, "create schema %s" % schema_name)
     print("Created new schema %s." % schema_name)
-
-    # Switch "scope" to selected schema
-    do_sql(cur, "set search_path to %s" % schema_name)
-    print("Set search path to schema %s." % schema_name)
 
     do_sql(cur, CREATE_COMPANY_TABLE)
     print("Initialized companies table")
@@ -75,9 +78,14 @@ def insert_record(cur, schema, parser_result):
         content = normalize('NFKD',
                             record_entry['content']).encode('ascii', 'ignore')
 
-        do_sql(cur, '''INSERT INTO %s (firm_id, date, content)
-                       VALUES ('%s', '%s', '%s')''' %
-               (table_name, firm_id, record_entry['date'], content))
+        # TODO handle bad characters properly ' ...
+        try:
+            do_sql(cur, '''INSERT INTO %s (firm_id, date, content)
+            VALUES ('%s', '%s', '%s')''' %
+                   (table_name, firm_id, record_entry['date'],
+                    content.encode('ascii', 'ignore')))
+        except:
+            print "Can't insert record_entry " + str(record_entry)
 
 
 def connect():
@@ -94,6 +102,10 @@ def connect():
 
         for schema_name in SCHEMAS:
             init_schema(cur, schema_name)
+        
+        do_sql(cur, "set search_path to %s" % SCHEMAS[0])
+        print("Set search path to schema %s." % SCHEMAS[0])
+
     except psycopg2.OperationalError:
         logger.error("Unable to connect db.")
     return cur

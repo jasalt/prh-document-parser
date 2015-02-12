@@ -76,6 +76,7 @@ def connect():
     cur = None
     try:
         conn = psycopg2.connect(CONN_STR)
+        conn.set_client_encoding('UTF8')
 
         # Allow dropping schema in transaction
         conn.set_isolation_level(0)

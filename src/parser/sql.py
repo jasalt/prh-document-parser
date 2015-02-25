@@ -5,8 +5,8 @@
 CREATE_COMPANY_TABLE = '''
 CREATE TABLE companies (
 id           serial,
-name         text,
-business_id  text,
+name         text NOT NULL,
+firm_id      text NOT NULL,
 reg_date     date,
 form         text,
 location     text,
@@ -27,7 +27,7 @@ homepage     text
 CREATE_ATTR_TABLE = '''
 CREATE TABLE IF NOT EXISTS %s (
 id           serial,
-firm_id      integer NOT NULL,
+firm_id      text NOT NULL,
 date         text NOT NULL,
 content      text NOT NULL
 )

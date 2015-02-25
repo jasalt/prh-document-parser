@@ -4,8 +4,9 @@
 import logging
 import psycopg2
 from unicodedata import normalize
+from random import randint
 
-from sql import CREATE_ATTR_TABLE
+from sql import CREATE_ATTR_TABLE, CREATE_COMPANY_TABLE
 
 CONN_STR = "dbname='firm-db' user='dbuser' host='localhost' password='dbpass'"
 SCHEMAS = ["first_pass", "second_pass"]
@@ -24,13 +25,19 @@ def do_sql(psycho_cursor, sql):
     return psycho_cursor.execute(sql)
 
 
+# TODO clean up and fix this
 def make_table_name(attr_u_str):
     '''Transforms unicode string to sql table name string.'''
-    normalized = normalize('NFKD', attr_u_str).encode('ascii', 'ignore')
-    cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"],
-                     normalized)
-    cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]
-    return cleaned0
+    try:
+        normalized = normalize('NFKD', attr_u_str)
+        cleaned = reduce(lambda s, r: s.replace(r, "_"), [" ", "-", "__"],
+                         normalized)  # Replace with underscore
+        cleaned0 = cleaned if not cleaned[0] == "_" else cleaned[1:]
+        return ''.join([i for i in cleaned0 if not i.isdigit()])  # rm
+    # digits
+    except:
+        print "Unable to make_table_name from " + attr_u_str
+        return "ILL_NAME" + str(randint(10000, 99999))
 
 
 def init_schema(cur, schema_name):
@@ -41,33 +48,41 @@ def init_schema(cur, schema_name):
     except:
         print("Schema %s missing, unable to drop.") % schema_name
 
-    res = cur.execute("create schema %s" % schema_name)
+    do_sql(cur, "create schema %s" % schema_name)
     print("Created new schema %s." % schema_name)
-    return res
 
 
-# TODO
-def insert_record(cur, schema, result):
+# TODO Validations
+def insert_record(cur, schema, parser_result):
     '''Insert parser result to database, table for each
         attribute'''
-    filename = result[0]
-    print "Inserting " + filename
-    # Switch "scope" to selected schema
-    do_sql(cur, "set search_path to %s" % schema)
+    filename = parser_result[0]
+    result = parser_result[1]
 
-    for record_entry in result[1]:
+    print "Inserting " + filename
+
+
+    firm_id = result['firmID']
+
+    do_sql(cur, '''INSERT INTO companies (name, firm_id, form)
+                   VALUES ('%s', '%s', '%s')''' %
+           (result['firmName'], firm_id, result['firmForm']))
+
+    for record_entry in result['log']:
         table_name = make_table_name(record_entry['title'])
         do_sql(cur, CREATE_ATTR_TABLE % table_name)
 
         content = normalize('NFKD',
                             record_entry['content']).encode('ascii', 'ignore')
 
-        # TODO Proper firm_id, validations, ...
-        res = do_sql(cur, '''INSERT INTO %s (firm_id, date, content)
-                             VALUES ('%s', '%s', '%s')''' %
-                     (table_name, 1, record_entry['date'], content))
-
-    return res
+        # TODO handle bad characters properly ' ...
+        try:
+            do_sql(cur, '''INSERT INTO %s (firm_id, date, content)
+            VALUES ('%s', '%s', '%s')''' %
+                   (table_name, firm_id, record_entry['date'],
+                    content.encode('ascii', 'ignore')))
+        except:
+            print "Can't insert record_entry " + str(record_entry)
 
 
 def connect():
@@ -76,6 +91,7 @@ def connect():
     cur = None
     try:
         conn = psycopg2.connect(CONN_STR)
+        conn.set_client_encoding('UTF8')
 
         # Allow dropping schema in transaction
         conn.set_isolation_level(0)
@@ -83,6 +99,13 @@ def connect():
 
         for schema_name in SCHEMAS:
             init_schema(cur, schema_name)
+        
+        do_sql(cur, "set search_path to %s" % SCHEMAS[0])
+        print("Set search path to schema %s." % SCHEMAS[0])
+        
+        do_sql(cur, CREATE_COMPANY_TABLE)
+        print("Initialized companies table")
+
     except psycopg2.OperationalError:
         logger.error("Unable to connect db.")
     return cur

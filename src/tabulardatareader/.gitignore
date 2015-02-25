@@ -1,0 +1,5 @@
+[Bb]in/*
+[Oo]bj/*
+*.depend
+*.layout
+libopencv*.dll

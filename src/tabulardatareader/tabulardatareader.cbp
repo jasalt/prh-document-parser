@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="tabulardatareader" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/tabulardatareader" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/tabulardatareader" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="$(#ocr_opencv.include)" />
+		</Compiler>
+		<Linker>
+			<Add library="$(#ocr_opencv.lib)\libcv2.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_contrib249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_core249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_features2d249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_flann249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_highgui249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_imgproc249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_legacy249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_nonfree249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_objdetect249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_photo249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_stitching249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_superres249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_video249.dll.a" />
+			<Add library="$(#ocr_opencv.lib)\libopencv_videostab249.dll.a" />
+		</Linker>
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
